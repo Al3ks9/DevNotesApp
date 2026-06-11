@@ -8,6 +8,8 @@ import styles from './NotesPage.module.css'
 type ViewMode = 'list' | 'compact' | 'grid'
 type SortField = 'updated_at' | 'created_at' | 'title'
 
+const PER_PAGE = 20
+
 export default function NotesPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -20,8 +22,6 @@ export default function NotesPage() {
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [sortField, setSortField] = useState<SortField>('updated_at')
-
-  const PER_PAGE = 20
 
   useEffect(() => {
     setPage(1)
@@ -37,7 +37,7 @@ export default function NotesPage() {
       })
       .catch(() => setError('Failed to load notes'))
       .finally(() => setLoading(false))
-  }, [page, activeTag])
+  }, [page, activeTag, sortField])
 
   function clearTagFilter() {
     setSearchParams({})
