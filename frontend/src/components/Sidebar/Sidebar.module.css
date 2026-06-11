@@ -1,0 +1,131 @@
+.sidebar {
+  width: 260px;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.collapsed {
+  width: 40px;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 4px;
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 8px;
+}
+
+.appName {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.toggleBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 18px;
+  padding: 4px;
+}
+
+.newNoteBtn {
+  margin: 8px 12px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+
+.newNoteBtn:hover {
+  background: var(--accent-hover);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.navLink,
+.navLinkActive {
+  display: block;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.navLinkActive {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sectionTitle {
+  padding: 0 16px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.tagList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tagItem,
+.recentNote {
+  width: 100%;
+  text-align: left;
+  padding: 4px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.tagItem:hover,
+.recentNote:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.comingSoon {
+  padding: 0 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
