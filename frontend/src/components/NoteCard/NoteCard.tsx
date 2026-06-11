@@ -49,7 +49,6 @@ export default function NoteCard({ note, variant = 'list', onClick }: Props) {
       <div className={styles.tags}>
         {note.tags.map(t => <TagChip key={t.id} name={t.name} />)}
       </div>
-      {note.tags.length === 0 && <div className={styles.excerpt}></div>}
     </div>
   )
 }

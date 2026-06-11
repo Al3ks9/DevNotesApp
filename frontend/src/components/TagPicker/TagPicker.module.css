@@ -14,28 +14,6 @@
   border-radius: 4px;
 }
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  border-radius: 3px;
-  font-size: 12px;
-}
-
-.removeBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 10px;
-  padding: 0;
-}
-
-.removeBtn:hover { color: var(--status-error); }
-
 .input {
   border: none;
   background: transparent;
@@ -76,4 +54,10 @@
 .option:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
+}
+
+.errorMsg {
+  font-size: 12px;
+  color: var(--status-error);
+  padding: 4px 6px 0;
 }

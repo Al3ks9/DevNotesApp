@@ -1,0 +1,156 @@
+.page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+}
+
+.pathRow {
+  display: flex;
+  gap: 8px;
+}
+
+.pathInput {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 4px;
+  outline: none;
+}
+
+.pathInput:focus {
+  border-color: var(--accent);
+}
+
+.importBtn {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.importBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.importBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.error {
+  padding: 0 24px 16px;
+  color: var(--status-error);
+  font-size: 13px;
+}
+
+.results {
+  margin: 0 24px 24px;
+  max-width: 600px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+}
+
+.resultsTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.statLabel {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.success {
+  color: var(--status-success);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.errorCount {
+  color: var(--status-error);
+}
+
+.expandBtn {
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+}
+
+.errorList {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.errorItem {
+  font-size: 12px;
+  color: var(--status-error);
+  padding: 4px 0;
+  font-family: monospace;
+  word-break: break-all;
+}

@@ -1,13 +1,39 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Layout from './components/Layout/Layout'
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import Layout, { useSidebar } from './components/Layout/Layout'
+import SearchModal from './components/SearchModal/SearchModal'
 import NotesPage from './pages/NotesPage/NotesPage'
 import NoteEditorPage from './pages/NoteEditorPage/NoteEditorPage'
 import TagsPage from './pages/TagsPage/TagsPage'
 import ImportPage from './pages/ImportPage/ImportPage'
 
-export default function App() {
+function AppShell() {
+  const navigate = useNavigate()
+  const { toggleSidebar } = useSidebar()
+  const [searchOpen, setSearchOpen] = useState(false)
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement).tagName
+      const isEditor = (e.target as HTMLElement).closest?.('.ProseMirror') !== null
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen(true)
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !isEditor) {
+        e.preventDefault()
+        toggleSidebar()
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'n' && tag !== 'INPUT' && tag !== 'TEXTAREA' && !isEditor) {
+        e.preventDefault()
+        navigate('/notes/new')
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [navigate, toggleSidebar])
+
   return (
-    <BrowserRouter>
+    <>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/notes" replace />} />
@@ -18,6 +44,15 @@ export default function App() {
           <Route path="import" element={<ImportPage />} />
         </Route>
       </Routes>
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
     </BrowserRouter>
   )
 }

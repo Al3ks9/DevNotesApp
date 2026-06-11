@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { listTags, createTag } from '../../api/tags'
 import type { Tag } from '../../api/types'
+import TagChip from '../TagChip/TagChip'
 import styles from './TagPicker.module.css'
 
 interface Props {
@@ -15,6 +16,7 @@ export default function TagPicker({ selectedTags, onAdd, onRemove, placeholder =
   const [allTags, setAllTags] = useState<Tag[]>([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function TagPicker({ selectedTags, onAdd, onRemove, placeholder =
 
   async function handleCreate() {
     if (!input.trim()) return
+    if (loading) return
     setLoading(true)
     try {
       const tag = await createTag(input.trim())
@@ -54,6 +57,8 @@ export default function TagPicker({ selectedTags, onAdd, onRemove, placeholder =
       onAdd(tag)
       setInput('')
       setOpen(false)
+    } catch {
+      setError('Failed to create tag')
     } finally {
       setLoading(false)
     }
@@ -67,7 +72,7 @@ export default function TagPicker({ selectedTags, onAdd, onRemove, placeholder =
     if (e.key === 'Enter') {
       e.preventDefault()
       if (filtered.length > 0) handleSelect(filtered[0])
-      else if (input.trim() && !exactMatch) handleCreate()
+      else if (input.trim() && !exactMatch && !loading) handleCreate()
     }
   }
 
@@ -75,20 +80,18 @@ export default function TagPicker({ selectedTags, onAdd, onRemove, placeholder =
     <div className={styles.container} ref={containerRef}>
       <div className={styles.chips}>
         {selectedTags.map(tag => (
-          <span key={tag.id} className={styles.chip}>
-            #{tag.name}
-            <button className={styles.removeBtn} onClick={() => onRemove(tag.id)} aria-label={`Remove ${tag.name}`}>✕</button>
-          </span>
+          <TagChip key={tag.id} name={tag.name} variant="removable" onRemove={() => onRemove(tag.id)} />
         ))}
         <input
           className={styles.input}
           value={input}
           placeholder={selectedTags.length === 0 ? placeholder : ''}
           onFocus={() => setOpen(true)}
-          onChange={e => { setInput(e.target.value); setOpen(true) }}
+          onChange={e => { setInput(e.target.value); setOpen(true); setError(null) }}
           onKeyDown={handleKeyDown}
         />
       </div>
+      {error && <div className={styles.errorMsg}>{error}</div>}
 
       {open && (filtered.length > 0 || (input.trim() && !exactMatch)) && (
         <ul className={styles.dropdown}>

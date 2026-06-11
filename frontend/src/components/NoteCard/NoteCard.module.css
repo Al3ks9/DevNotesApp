@@ -56,6 +56,10 @@
   padding: 16px;
 }
 
+.card.grid {
+  border-bottom: 1px solid var(--border-color);
+}
+
 .compact .title {
   font-size: 13px;
 }
