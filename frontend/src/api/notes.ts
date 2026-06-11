@@ -1,21 +1,7 @@
 import { apiFetch } from './client'
-import type { Note, NoteList, PaginatedResponse } from './types'
+import type { Note, NoteList, NoteCreate, NoteUpdate, PaginatedResponse } from './types'
 
-export interface NoteCreate {
-  title: string
-  content: string
-  source_path?: string
-  note_type?: string
-  tag_ids?: string[]
-}
-
-export interface NoteUpdate {
-  title?: string
-  content?: string
-  source_path?: string
-  note_type?: string
-  tag_ids?: string[]
-}
+export type { NoteCreate, NoteUpdate }
 
 export function listNotes(page = 1, perPage = 20, tag?: string): Promise<PaginatedResponse<NoteList>> {
   const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })

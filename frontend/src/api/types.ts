@@ -44,3 +44,19 @@ export interface SearchResult {
   content: string
   tags: Tag[]
 }
+
+export interface NoteCreate {
+  title: string
+  content: string
+  source_path?: string
+  note_type?: NoteType
+  tag_ids?: string[]
+}
+
+export interface NoteUpdate {
+  title?: string
+  content?: string
+  source_path?: string
+  note_type?: NoteType
+  tag_ids?: string[]
+}
