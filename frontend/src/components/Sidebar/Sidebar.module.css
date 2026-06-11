@@ -129,3 +129,9 @@
   font-size: 12px;
   color: var(--text-muted);
 }
+
+.error {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--status-error);
+}

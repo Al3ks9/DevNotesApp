@@ -10,14 +10,22 @@ interface Props {
   onToggle: () => void
 }
 
+const navClassName = ({ isActive }: { isActive: boolean }) =>
+  isActive ? styles.navLinkActive : styles.navLink
+
 export default function Sidebar({ open, onToggle }: Props) {
   const navigate = useNavigate()
   const [recentNotes, setRecentNotes] = useState<NoteList[]>([])
   const [tags, setTags] = useState<Tag[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    listNotes(1, 5).then(r => setRecentNotes(r.items)).catch(() => {})
-    listTags().then(setTags).catch(() => {})
+    const controller = new AbortController()
+    Promise.all([
+      listNotes(1, 5).then(r => setRecentNotes(r.items)),
+      listTags().then(setTags),
+    ]).catch(() => setError('Failed to load sidebar data'))
+    return () => controller.abort()
   }, [])
 
   if (!open) {
@@ -39,14 +47,16 @@ export default function Sidebar({ open, onToggle }: Props) {
         + New Note
       </button>
 
+      {error && <div className={styles.error}>{error}</div>}
+
       <nav className={styles.nav}>
-        <NavLink to="/notes" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>
+        <NavLink to="/notes" className={navClassName}>
           NOTES
         </NavLink>
-        <NavLink to="/tags" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>
+        <NavLink to="/tags" className={navClassName}>
           TAGS
         </NavLink>
-        <NavLink to="/import" className={({ isActive }) => isActive ? styles.navLinkActive : styles.navLink}>
+        <NavLink to="/import" className={navClassName}>
           IMPORT
         </NavLink>
       </nav>
@@ -69,7 +79,7 @@ export default function Sidebar({ open, onToggle }: Props) {
       {recentNotes.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionTitle}>Recent Notes</div>
-          <ul>
+          <ul className={styles.tagList}>
             {recentNotes.map(note => (
               <li key={note.id}>
                 <button className={styles.recentNote} onClick={() => navigate(`/notes/${note.id}`)}>

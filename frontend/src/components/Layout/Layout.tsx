@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext, useCallback } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../Sidebar/Sidebar'
 import styles from './Layout.module.css'
@@ -14,7 +14,7 @@ export function useSidebar() {
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const toggleSidebar = () => setSidebarOpen(v => !v)
+  const toggleSidebar = useCallback(() => setSidebarOpen(v => !v), [])
 
   return (
     <SidebarContext.Provider value={{ sidebarOpen, toggleSidebar }}>
