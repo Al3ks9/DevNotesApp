@@ -1,0 +1,30 @@
+:root {
+  /* Backgrounds */
+  --bg-primary: #191919;
+  --bg-secondary: #202020;
+  --bg-tertiary: #2a2a2a;
+  --border-color: #333333;
+
+  /* Text */
+  --text-primary: #f0efed;
+  --text-secondary: #b8b8b8;
+  --text-muted: #8a8a8a;
+
+  /* Markdown typography (editor/preview areas only) */
+  --md-text: #e8e6e3;
+  --md-heading: #faf8f5;
+  --md-link: #78a9ff;
+  --md-code: #d4b483;
+  --md-inline-code-bg: #2c2c2c;
+  --md-blockquote: #9fb5a5;
+  --md-list-marker: #8ab4f8;
+
+  /* Accent */
+  --accent: #007acc;
+  --accent-hover: #1a8fe3;
+
+  /* Status */
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+}
