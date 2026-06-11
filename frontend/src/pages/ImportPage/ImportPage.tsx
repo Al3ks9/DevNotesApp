@@ -14,6 +14,7 @@ export default function ImportPage() {
   const [errorsExpanded, setErrorsExpanded] = useState(false)
 
   async function handleImport() {
+    if (loading) return
     if (!folderPath.trim()) return
     setLoading(true)
     setError(null)

@@ -45,7 +45,7 @@ export default function TagsPage() {
             <button
               className={sortMode === 'count' ? styles.sortBtnActive : styles.sortBtn}
               onClick={() => setSortMode('count')}
-            >By count</button>
+            >By name</button>
             <button
               className={sortMode === 'alpha' ? styles.sortBtnActive : styles.sortBtn}
               onClick={() => setSortMode('alpha')}

@@ -19,6 +19,7 @@ export default function SearchModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchCountRef = useRef(0)
 
   // Reset on open
   useEffect(() => {
@@ -26,6 +27,7 @@ export default function SearchModal({ open, onClose }: Props) {
       setQuery('')
       setResults([])
       setSelectedIdx(0)
+      searchCountRef.current = 0
       setTimeout(() => inputRef.current?.focus(), 0)
     }
   }, [open])
@@ -38,11 +40,18 @@ export default function SearchModal({ open, onClose }: Props) {
     }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
+      const currentCount = ++searchCountRef.current
       setLoading(true)
       search(query)
-        .then(r => { setResults(r.items); setSelectedIdx(0) })
+        .then(r => {
+          if (searchCountRef.current !== currentCount) return  // stale, discard
+          setResults(r.items)
+          setSelectedIdx(0)
+        })
         .catch(() => {})
-        .finally(() => setLoading(false))
+        .finally(() => {
+          if (searchCountRef.current === currentCount) setLoading(false)
+        })
     }, 250)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
