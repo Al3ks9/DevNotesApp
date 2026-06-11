@@ -49,19 +49,27 @@ export default function NoteEditorPage() {
   const contentRef = useRef(content)
   const noteTypeRef = useRef(noteType)
   const noteIdRef = useRef(noteId)
+  const tagsRef = useRef<Tag[]>(tags)
+  const isSavingRef = useRef(false)
+  const isHydratingRef = useRef(false)
   useEffect(() => {
     titleRef.current = title
     contentRef.current = content
     noteTypeRef.current = noteType
     noteIdRef.current = noteId
   }, [title, content, noteType, noteId])
+  useEffect(() => {
+    tagsRef.current = tags
+  }, [tags])
 
   const isMarkdown = noteType === MARKDOWN_TYPE
 
   const doSave = useCallback(async () => {
+    if (isSavingRef.current) return
     const curTitle = titleRef.current
     const curContent = contentRef.current
     if (!curTitle.trim() && !curContent.trim()) return // don't save empty notes
+    isSavingRef.current = true
     setSaveStatus('saving')
     try {
       if (noteIdRef.current) {
@@ -81,7 +89,7 @@ export default function NoteEditorPage() {
         noteIdRef.current = created.id
         setLastModified(created.updated_at)
         // Sync any tags added before the note existed.
-        for (const tag of tags) {
+        for (const tag of tagsRef.current) {
           try {
             await addTag(created.id, tag.id)
           } catch {
@@ -96,8 +104,10 @@ export default function NoteEditorPage() {
       statusTimeoutRef.current = setTimeout(() => setSaveStatus('idle'), 2000)
     } catch {
       setSaveStatus('idle')
+    } finally {
+      isSavingRef.current = false
     }
-  }, [tags])
+  }, [])
 
   const scheduleSave = useCallback(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
@@ -118,7 +128,10 @@ export default function NoteEditorPage() {
     ],
     content: '',
     onUpdate: ({ editor }) => {
-      setContent(getMarkdownFromEditor(editor))
+      if (isHydratingRef.current) return
+      const md = getMarkdownFromEditor(editor)
+      setContent(md)
+      contentRef.current = md
       scheduleSave()
     },
   })
@@ -147,17 +160,27 @@ export default function NoteEditorPage() {
 
   // Push loaded content into the editor once both are ready.
   const hydratedRef = useRef(false)
+  // Reset hydration flag when navigating between notes so the new note hydrates.
+  useEffect(() => {
+    hydratedRef.current = false
+  }, [id])
   useEffect(() => {
     if (!editor || hydratedRef.current) return
+    if (!isMarkdown) {
+      hydratedRef.current = true // plain-text notes don't hydrate into TipTap
+      return
+    }
     if (!id) {
       hydratedRef.current = true
       return
     }
     if (content) {
+      isHydratingRef.current = true
       editor.commands.setContent(content)
+      isHydratingRef.current = false
       hydratedRef.current = true
     }
-  }, [editor, id, content])
+  }, [editor, id, content, isMarkdown])
 
   // Ctrl/Cmd+S to save immediately.
   useEffect(() => {
@@ -358,8 +381,8 @@ function OutlinePanel({ editor, onClose }: { editor: Editor | null; onClose: () 
         <div className={styles.outlineEmpty}>No headings</div>
       ) : (
         <ul className={styles.outlineList}>
-          {headings.map((h, i) => (
-            <li key={i} style={{ paddingLeft: `${(h.level - 1) * 12}px` }}>
+          {headings.map(h => (
+            <li key={h.pos} style={{ paddingLeft: `${(h.level - 1) * 12}px` }}>
               <button type="button" className={styles.outlineItem} onClick={() => goTo(h.pos)}>
                 {h.text || '(untitled heading)'}
               </button>

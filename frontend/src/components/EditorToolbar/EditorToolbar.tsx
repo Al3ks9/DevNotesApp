@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { Editor } from '@tiptap/react'
 import styles from './EditorToolbar.module.css'
 
@@ -12,7 +13,7 @@ interface BtnDef {
   isActive?: () => boolean
 }
 
-export default function EditorToolbar({ editor }: Props) {
+export default memo(function EditorToolbar({ editor }: Props) {
   if (!editor) return null
 
   const buttons: BtnDef[] = [
@@ -66,4 +67,4 @@ export default function EditorToolbar({ editor }: Props) {
       </button>
     </div>
   )
-}
+})
