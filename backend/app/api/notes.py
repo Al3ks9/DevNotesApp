@@ -15,10 +15,11 @@ router = APIRouter(prefix="/notes", tags=["notes"])
 async def list_notes(
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
+    tag: str | None = Query(None),
     service: NoteService = Depends(get_note_service),
 ):
     skip = (page - 1) * per_page
-    items, total = await service.list(skip=skip, limit=per_page)
+    items, total = await service.list(skip=skip, limit=per_page, tag=tag)
     return PaginatedResponse(items=items, total=total, page=page, per_page=per_page)
 
 

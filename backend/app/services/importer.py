@@ -58,6 +58,10 @@ class ImportService:
                     note_type=NoteType.document,
                 )
                 if resolved_tags:
+                    # Reload with selectinload so note.tags is initialised
+                    # before assignment; direct set on an unloaded async
+                    # relationship triggers MissingGreenlet.
+                    note = await self.repo.get_with_relations(note.id)
                     note.tags = resolved_tags
                     await session.flush()
                 created += 1

@@ -11,8 +11,8 @@ class NoteService:
     async def get(self, id: uuid.UUID):
         return await self.repo.get_with_relations(id)
 
-    async def list(self, skip: int = 0, limit: int = 100):
-        return await self.repo.list(skip=skip, limit=limit)
+    async def list(self, skip: int = 0, limit: int = 20, tag: str | None = None):
+        return await self.repo.list_notes(skip=skip, limit=limit, tag=tag)
 
     async def create(self, data: NoteCreate):
         note = await self.repo.create(

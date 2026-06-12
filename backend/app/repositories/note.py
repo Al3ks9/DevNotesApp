@@ -1,10 +1,9 @@
 import uuid
 
-from sqlalchemy import select, or_
+from sqlalchemy import func, select, or_
 from sqlalchemy.orm import selectinload
 
 from ..models.note import Note
-from ..models.note_tag import NoteTags
 from ..models.tag import Tag
 from .base import BaseRepository
 
@@ -12,6 +11,23 @@ from .base import BaseRepository
 class NoteRepository(BaseRepository[Note]):
     def __init__(self, session) -> None:
         super().__init__(session, Note)
+
+    async def list_notes(
+        self,
+        skip: int = 0,
+        limit: int = 20,
+        tag: str | None = None,
+    ) -> tuple[list[Note], int]:
+        base = select(Note).options(selectinload(Note.tags))
+        count_base = select(func.count()).select_from(Note)
+        if tag:
+            base = base.join(Note.tags).where(Tag.name == tag)
+            count_base = count_base.join(Note.tags).where(Tag.name == tag)
+        total = await self.session.scalar(count_base)
+        result = await self.session.execute(
+            base.order_by(Note.updated_at.desc()).offset(skip).limit(limit)
+        )
+        return list(result.scalars().all()), total or 0
 
     async def get_with_relations(self, id: uuid.UUID) -> Note | None:
         query = (
