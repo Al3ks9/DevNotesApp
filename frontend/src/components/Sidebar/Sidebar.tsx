@@ -22,8 +22,8 @@ export default function Sidebar({ open, onToggle }: Props) {
   useEffect(() => {
     const controller = new AbortController()
     Promise.all([
-      listNotes(1, 5).then(r => setRecentNotes(r.items)),
-      listTags().then(setTags),
+      listNotes(1, 5).then(r => setRecentNotes(r?.items ?? [])),
+      listTags().then(result => setTags(result ?? [])),
     ]).catch(() => setError('Failed to load sidebar data'))
     return () => controller.abort()
   }, [])
