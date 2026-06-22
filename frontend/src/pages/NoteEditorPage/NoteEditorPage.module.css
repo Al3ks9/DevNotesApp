@@ -60,6 +60,24 @@
   color: var(--text-primary);
 }
 
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  color: #fff;
+  background: var(--status-error);
+  border-color: var(--status-error);
+}
+
 .modeToggle {
   display: flex;
   gap: 2px;

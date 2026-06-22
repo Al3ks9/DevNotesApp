@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { listNotes } from '../../api/notes'
+import { listNotes, deleteNote } from '../../api/notes'
 import type { NoteList } from '../../api/types'
 import NoteCard from '../../components/NoteCard/NoteCard'
 import styles from './NotesPage.module.css'
 
-type ViewMode = 'list' | 'compact' | 'grid'
+type ViewMode = 'list' | 'grid'
 type SortField = 'updated_at' | 'created_at' | 'title'
 
 const PER_PAGE = 20
@@ -43,6 +43,17 @@ export default function NotesPage() {
     setSearchParams({})
   }
 
+  async function handleDelete(id: string) {
+    if (!window.confirm('Delete this note? This cannot be undone.')) return
+    try {
+      await deleteNote(id)
+      setNotes(prev => prev.filter(n => n.id !== id))
+      setTotal(t => Math.max(0, t - 1))
+    } catch {
+      setError('Failed to delete note')
+    }
+  }
+
   const totalPages = Math.ceil(total / PER_PAGE)
 
   return (
@@ -51,7 +62,7 @@ export default function NotesPage() {
         <h1 className={styles.heading}>Notes</h1>
         <div className={styles.controls}>
           <div className={styles.viewToggle}>
-            {(['list', 'compact', 'grid'] as ViewMode[]).map(mode => (
+            {(['list', 'grid'] as ViewMode[]).map(mode => (
               <button
                 key={mode}
                 className={viewMode === mode ? styles.viewBtnActive : styles.viewBtn}
@@ -96,6 +107,7 @@ export default function NotesPage() {
             note={note}
             variant={viewMode}
             onClick={() => navigate(`/notes/${note.id}`)}
+            onDelete={handleDelete}
           />
         ))}
       </div>

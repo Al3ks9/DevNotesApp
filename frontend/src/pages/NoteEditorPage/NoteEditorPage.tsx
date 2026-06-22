@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import type { Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -9,7 +9,8 @@ import Highlight from '@tiptap/extension-highlight'
 import Typography from '@tiptap/extension-typography'
 import CharacterCount from '@tiptap/extension-character-count'
 import { Markdown } from 'tiptap-markdown'
-import { getNote, createNote, updateNote, addTag, removeTag } from '../../api/notes'
+import { Trash2 } from 'lucide-react'
+import { getNote, createNote, updateNote, deleteNote, addTag, removeTag } from '../../api/notes'
 import type { NoteType, Tag } from '../../api/types'
 import TagPicker from '../../components/TagPicker/TagPicker'
 import EditorToolbar from '../../components/EditorToolbar/EditorToolbar'
@@ -30,6 +31,7 @@ function getMarkdownFromEditor(editor: Editor): string {
 
 export default function NoteEditorPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
 
   const [noteId, setNoteId] = useState<string | null>(id ?? null)
   const [title, setTitle] = useState('')
@@ -251,6 +253,23 @@ export default function NoteEditorPage() {
     }
   }
 
+  async function handleDelete() {
+    const currentId = noteIdRef.current
+    // Nothing persisted yet — just go back to the list.
+    if (!currentId) {
+      navigate('/notes')
+      return
+    }
+    if (!window.confirm('Delete this note? This cannot be undone.')) return
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    try {
+      await deleteNote(currentId)
+      navigate('/notes')
+    } catch {
+      setLoadError('Failed to delete note')
+    }
+  }
+
   const saveLabel =
     saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : ''
 
@@ -314,6 +333,16 @@ export default function NoteEditorPage() {
               Outline
             </button>
           )}
+
+          <button
+            type="button"
+            className={styles.deleteBtn}
+            onClick={handleDelete}
+            title="Delete note"
+            aria-label="Delete note"
+          >
+            <Trash2 size={16} aria-hidden="true" />
+          </button>
         </div>
       </div>
 

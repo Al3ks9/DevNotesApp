@@ -1,23 +1,82 @@
+/* The <aside> is the in-flow element. When pinned it is the full 260px panel;
+   when unpinned it is a slim 52px strip that the expanded panel overlays. */
 .sidebar {
-  width: 260px;
+  position: relative;
+  height: 100vh;
+  flex-shrink: 0;
   background: var(--bg-primary);
   border-right: 1px solid var(--border-color);
+}
+
+.sidebar.pinned {
+  width: 260px;
+}
+
+.sidebar:not(.pinned) {
+  width: 52px;
+}
+
+/* Full sidebar panel (shared by pinned layout + hover overlay) */
+.panel {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 260px;
   overflow-y: auto;
-  padding: 0;
-  flex-shrink: 0;
+  background: var(--bg-primary);
 }
 
-.collapsed {
-  width: 40px;
-  background: var(--bg-primary);
+/* Hover overlay: floats above page content so nothing reflows on hover */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 50;
   border-right: 1px solid var(--border-color);
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Collapsed icon strip */
+.strip {
   display: flex;
-  align-items: flex-start;
-  padding: 8px 4px;
-  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  height: 100vh;
+}
+
+.stripDivider {
+  width: 24px;
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.stripBtn,
+.stripBtnActive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.stripBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.stripBtnActive {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .header {
@@ -33,16 +92,31 @@
   font-size: 15px;
 }
 
-.toggleBtn {
+.pinBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
-  font-size: 18px;
   padding: 4px;
+  border-radius: 6px;
+}
+
+.pinBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.pinBtn[aria-pressed='true'] {
+  color: var(--accent);
 }
 
 .newNoteBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 8px 12px;
   padding: 8px 12px;
   background: var(--accent);
@@ -67,19 +141,30 @@
 
 .navLink,
 .navLinkActive {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 8px 16px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
   text-decoration: none;
 }
 
+.navLink:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
 .navLinkActive {
   color: var(--text-primary);
   background: var(--bg-tertiary);
+}
+
+.navIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .section {
@@ -88,11 +173,20 @@
 }
 
 .sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 0 16px 6px;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sectionIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .tagList {
@@ -117,17 +211,6 @@
 .recentNote:hover {
   color: var(--text-primary);
   background: var(--bg-tertiary);
-}
-
-.disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.comingSoon {
-  padding: 0 16px;
-  font-size: 12px;
-  color: var(--text-muted);
 }
 
 .error {

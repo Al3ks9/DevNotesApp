@@ -1,23 +1,43 @@
 import { useNavigate, NavLink } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { FileText, Hash, Upload, History, PanelLeft, Plus } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { listNotes } from '../../api/notes'
 import { listTags } from '../../api/tags'
 import type { NoteList, Tag } from '../../api/types'
 import styles from './Sidebar.module.css'
 
 interface Props {
-  open: boolean
-  onToggle: () => void
+  isPinned: boolean
+  onTogglePin: () => void
 }
+
+interface NavItem {
+  to: string
+  label: string
+  Icon: LucideIcon
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { to: '/notes', label: 'Notes', Icon: FileText },
+  { to: '/tags', label: 'Tags', Icon: Hash },
+  { to: '/import', label: 'Import', Icon: Upload },
+]
+
+// Delay before collapsing on mouse-out, to avoid flicker when the pointer
+// briefly crosses a gap or moves between child elements.
+const COLLAPSE_DELAY_MS = 180
 
 const navClassName = ({ isActive }: { isActive: boolean }) =>
   isActive ? styles.navLinkActive : styles.navLink
 
-export default function Sidebar({ open, onToggle }: Props) {
+export default function Sidebar({ isPinned, onTogglePin }: Props) {
   const navigate = useNavigate()
   const [recentNotes, setRecentNotes] = useState<NoteList[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [hoverOpen, setHoverOpen] = useState(false)
+  const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -28,42 +48,66 @@ export default function Sidebar({ open, onToggle }: Props) {
     return () => controller.abort()
   }, [])
 
-  if (!open) {
-    return (
-      <div className={styles.collapsed}>
-        <button className={styles.toggleBtn} onClick={onToggle} title="Expand sidebar">›</button>
-      </div>
-    )
+  useEffect(() => {
+    return () => {
+      if (collapseTimer.current) clearTimeout(collapseTimer.current)
+    }
+  }, [])
+
+  // Hover handlers only matter in unpinned mode; in pinned mode they're not
+  // attached so hovering has no effect.
+  function handleMouseEnter() {
+    if (collapseTimer.current) clearTimeout(collapseTimer.current)
+    setHoverOpen(true)
   }
 
-  return (
-    <aside className={styles.sidebar}>
+  function handleMouseLeave() {
+    if (collapseTimer.current) clearTimeout(collapseTimer.current)
+    collapseTimer.current = setTimeout(() => setHoverOpen(false), COLLAPSE_DELAY_MS)
+  }
+
+  const pinButton = (
+    <button
+      type="button"
+      className={styles.pinBtn}
+      onClick={onTogglePin}
+      aria-label={isPinned ? 'Unpin sidebar (hover mode)' : 'Pin sidebar open'}
+      aria-pressed={isPinned}
+      title={isPinned ? 'Unpin sidebar' : 'Pin sidebar open'}
+    >
+      <PanelLeft size={18} aria-hidden="true" />
+    </button>
+  )
+
+  const panel = (
+    <div className={styles.panel}>
       <div className={styles.header}>
         <span className={styles.appName}>DevNotes</span>
-        <button className={styles.toggleBtn} onClick={onToggle} title="Collapse sidebar">‹</button>
+        {pinButton}
       </div>
 
       <button className={styles.newNoteBtn} onClick={() => navigate('/notes/new')}>
-        + New Note
+        <Plus size={16} aria-hidden="true" />
+        New Note
       </button>
 
       {error && <div className={styles.error}>{error}</div>}
 
       <nav className={styles.nav}>
-        <NavLink to="/notes" className={navClassName}>
-          NOTES
-        </NavLink>
-        <NavLink to="/tags" className={navClassName}>
-          TAGS
-        </NavLink>
-        <NavLink to="/import" className={navClassName}>
-          IMPORT
-        </NavLink>
+        {NAV_ITEMS.map(({ to, label, Icon }) => (
+          <NavLink key={to} to={to} className={navClassName}>
+            <Icon size={16} aria-hidden="true" className={styles.navIcon} />
+            {label}
+          </NavLink>
+        ))}
       </nav>
 
       {tags.length > 0 && (
         <section className={styles.section}>
-          <div className={styles.sectionTitle}>Tags</div>
+          <div className={styles.sectionTitle}>
+            <Hash size={16} aria-hidden="true" className={styles.sectionIcon} />
+            Tags
+          </div>
           <ul className={styles.tagList}>
             {tags.slice(0, 10).map(tag => (
               <li key={tag.id}>
@@ -78,7 +122,10 @@ export default function Sidebar({ open, onToggle }: Props) {
 
       {recentNotes.length > 0 && (
         <section className={styles.section}>
-          <div className={styles.sectionTitle}>Recent Notes</div>
+          <div className={styles.sectionTitle}>
+            <History size={16} aria-hidden="true" className={styles.sectionIcon} />
+            Recent Notes
+          </div>
           <ul className={styles.tagList}>
             {recentNotes.map(note => (
               <li key={note.id}>
@@ -90,11 +137,57 @@ export default function Sidebar({ open, onToggle }: Props) {
           </ul>
         </section>
       )}
+    </div>
+  )
 
-      <section className={`${styles.section} ${styles.disabled}`}>
-        <div className={styles.sectionTitle}>AI Workspace</div>
-        <span className={styles.comingSoon}>Coming soon</span>
-      </section>
+  // Pinned: the full panel sits permanently in the layout flow.
+  if (isPinned) {
+    return <aside className={`${styles.sidebar} ${styles.pinned}`}>{panel}</aside>
+  }
+
+  // Unpinned (hover mode): a slim icon strip reserves space; when hovered the
+  // full panel overlays on top so page content doesn't shift.
+  return (
+    <aside
+      className={styles.sidebar}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className={styles.strip}>
+        {pinButton}
+        <button
+          type="button"
+          className={styles.stripBtn}
+          onClick={() => navigate('/notes/new')}
+          title="New Note"
+          aria-label="New Note"
+        >
+          <Plus size={18} aria-hidden="true" />
+        </button>
+        <div className={styles.stripDivider} aria-hidden="true" />
+        {NAV_ITEMS.map(({ to, label, Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) => (isActive ? styles.stripBtnActive : styles.stripBtn)}
+            title={label}
+            aria-label={label}
+          >
+            <Icon size={18} aria-hidden="true" />
+          </NavLink>
+        ))}
+        <button
+          type="button"
+          className={styles.stripBtn}
+          onClick={() => navigate('/notes')}
+          title="Recent Notes"
+          aria-label="Recent Notes"
+        >
+          <History size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      {hoverOpen && <div className={styles.overlay}>{panel}</div>}
     </aside>
   )
 }
