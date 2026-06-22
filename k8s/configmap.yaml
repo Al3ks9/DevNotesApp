@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devnotes-config
+  namespace: devnotes
+data:
+  POSTGRES_HOST: "db"
+  BACKEND_PORT: "8000"
+  CORS_ORIGINS: '["http://devnotes.local"]'
+  VITE_API_URL: "/api"

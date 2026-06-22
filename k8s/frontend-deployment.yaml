@@ -1,0 +1,39 @@
+# VITE_API_URL is baked into the image at build time (Vite env vars are
+# compile-time only) and nginx.conf already proxies /api/ -> http://backend:8000/,
+# which resolves via the `backend` Service below — no runtime env var needed.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: devnotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: al3ks9/devnotes-frontend:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: devnotes
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80

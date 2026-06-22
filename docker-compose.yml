@@ -3,20 +3,21 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: devnotes
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: al3ks
+      POSTGRES_PASSWORD: devnotes
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U al3ks -d devnotes"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   backend:
-    build: ./backend
+    image: al3ks9/devnotes-backend:latest
+    pull_policy: always
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/devnotes
+      DATABASE_URL: postgresql+asyncpg://al3ks:devnotes@db:5432/devnotes
       CORS_ORIGINS: '["http://localhost"]'
     depends_on:
       db:
@@ -26,10 +27,8 @@ services:
              uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: /api
+    image: al3ks9/devnotes-frontend:latest
+    pull_policy: always
     ports:
       - "80:80"
     depends_on:

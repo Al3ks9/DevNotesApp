@@ -1,0 +1,45 @@
+# Add to /etc/hosts: 127.0.0.1 devnotes.local
+#
+# The backend mounts its routes at the root path (e.g. /health, /notes),
+# not under /api, so the /api prefix must be stripped before traffic
+# reaches the backend Service. This uses a Traefik Middleware (CRD group
+# traefik.io/v1alpha1, current for Traefik v3 as shipped with recent k3d/k3s
+# releases). If your k3d cluster ships Traefik v2, change the apiVersion
+# below to traefik.containo.us/v1alpha1.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-api-prefix
+  namespace: devnotes
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devnotes-ingress
+  namespace: devnotes
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: devnotes-strip-api-prefix@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: devnotes.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
