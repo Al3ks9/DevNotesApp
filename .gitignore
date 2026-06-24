@@ -19,3 +19,6 @@ wheels/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+
+# Docs
+docs/
